@@ -22,6 +22,8 @@
   const checkoutModal = document.getElementById('checkout-modal');
   const certModal = document.getElementById('cert-modal');
   const checkoutForm = document.getElementById('checkout-form');
+  const GOOGLE_SHEET_URL =
+    'https://script.google.com/macros/s/AKfycbydWiCvJwR5lH-3sNXVSFvauN8ZEv0u1OQKZJmSvlrOzBFsPh40QIs1PGR4AxLJfT-0/exec';
 
   // ─── Header scroll effect ───
   function onScroll() {
@@ -173,22 +175,63 @@
     el.addEventListener('click', closeCertModal);
   });
 
-  // ─── Form submit (mock) ───
-  checkoutForm.addEventListener('submit', (e) => {
+  // ─── Form submit to Google Sheets ───
+  checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(checkoutForm);
     const name = formData.get('name');
-    const selectionName = currentSelection?.name || 'your sponsorship';
+    const selection = currentSelection ? { ...currentSelection } : {};
+    const selectionName = selection.name || 'your enquiry';
+    const submitButton = checkoutForm.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
 
-    closeCheckoutModal();
-    checkoutForm.reset();
+    const payload = {
+      timestamp: new Date().toISOString(),
+      type: selection.type || '',
+      selectionId: selection.id || '',
+      selectionName,
+      price: selection.price ? formatPrice(selection.price) : '',
+      name: name || '',
+      email: formData.get('email') || '',
+      phone: formData.get('phone') || '',
+      dedication: formData.get('dedication') || '',
+      attendance: formData.get('attendance') || 'video',
+      status: 'New Lead',
+    };
 
-    const msg = document.createElement('div');
-    msg.className =
-      'fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-secondary text-white px-6 py-4 rounded-2xl shadow-card text-sm font-semibold max-w-sm text-center';
-    msg.textContent = `Thank you, ${name}! Redirecting to secure payment for ${selectionName}…`;
-    document.body.appendChild(msg);
-    setTimeout(() => msg.remove(), 4000);
+    submitButton.disabled = true;
+    submitButton.textContent = 'Sending enquiry...';
+
+    try {
+      await fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      closeCheckoutModal();
+      checkoutForm.reset();
+
+      const msg = document.createElement('div');
+      msg.className =
+        'fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-secondary text-white px-6 py-4 rounded-2xl shadow-card text-sm font-semibold max-w-sm text-center';
+      msg.textContent = `Thank you, ${name}! We received your enquiry for ${selectionName}. Our team will call you soon.`;
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 5000);
+    } catch (error) {
+      const msg = document.createElement('div');
+      msg.className =
+        'fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-red-600 text-white px-6 py-4 rounded-2xl shadow-card text-sm font-semibold max-w-sm text-center';
+      msg.textContent = 'Something went wrong. Please try again or contact us directly.';
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 5000);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+    }
   });
 
   // ─── Escape key closes modals ───
