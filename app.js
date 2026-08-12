@@ -3,7 +3,7 @@
 
   // ─── Breakdown data for modal ───
   const BREAKDOWNS = {
-    knowledge: '5 Books (₹400) • Drawing Pads (₹300) • Crayons & Stationery (₹300)',
+    birthday: 'Cake cutting (₹450) • Snacks & juice (₹350) • Photos, short video & thank-you note (₹200)',
     nutrition: 'Hot meals for 30 kids (₹1,800) • Fresh fruits (₹500) • Serving & logistics (₹200)',
     sports: 'Footballs (₹1,200) • Cricket bats (₹1,500) • Badminton sets (₹1,500) • Pumps & accessories (₹800)',
     'beach-football': 'Beach rental (₹2,000) • Jerseys (₹1,500) • Trophies (₹800) • Snacks (₹1,200) • Referee & photography (₹2,000)',
