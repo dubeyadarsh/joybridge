@@ -1,4 +1,4 @@
-# JoyBridge Landing Page
+# MetaOptimus Landing Page
 
 A warm, trustworthy static landing page for a social impact platform connecting donors with orphanages through event sponsorship and micro-donations.
 
